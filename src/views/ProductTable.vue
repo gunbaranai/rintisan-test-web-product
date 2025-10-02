@@ -13,18 +13,20 @@ console.log('Products length:', store.products.length)
 // Define columns for the data table
 const columns = [
   {
-    title: 'ID',
-    key: 'id',
-    width: 80,
-  },
-  {
-    title: 'Name',
+    title: 'Nama Barang',
     key: 'name',
   },
   {
-    title: 'Price',
+    title: 'Harga',
     key: 'price',
     width: 120,
+  },
+  {
+    title: 'Kategori',
+    key: 'category',
+    render(row) {
+      return row.category.name
+    }
   },
   {
     title: 'Status',
@@ -32,10 +34,10 @@ const columns = [
     width: 100,
     render(row) {
       return h(NTag, {
-        type: row.active ? 'success' : 'error',
+        type: row.is_active === 1 ? 'success' : 'error',
         size: 'small'
       }, {
-        default: () => row.active ? 'Active' : 'Inactive'
+        default: () => row.is_active === 1 ? 'Active' : 'Inactive'
       })
     }
   }
@@ -44,10 +46,6 @@ const columns = [
 
 <template>
   <div>
-    <div class="mb-4">
-      DEBUG: LENGTH: {{ data.length }}
-    </div>
-
     <!-- Loading state -->
     <div v-if="store.loading" class="text-center py-8">
       Loading products...
