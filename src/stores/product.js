@@ -21,9 +21,49 @@ export const useProductStore = defineStore('product', () => {
     }
   }
 
-  const bulkUpdateStatus = (status) => {
-    // Implement bulk update logic
-    console.log(status)
+  const bulkUpdateStatus = async (productIds, status) => {
+    loading.value = true
+    error.value = null
+
+    try {
+      // Update products in the store optimistically
+      products.value = products.value.map((product) =>
+        productIds.includes(product.id) ? { ...product, is_active: status } : product,
+      )
+
+      // Here you would typically make an API call to update the backend
+      // await api.bulkUpdateProductStatus(productIds, status)
+
+      console.log(`Updated ${productIds.length} products to status: ${status}`)
+    } catch (err) {
+      error.value = err.message || 'Failed to update product status'
+      console.error('Error updating product status:', err)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const updateProductStatus = async (productId, status) => {
+    loading.value = true
+    error.value = null
+
+    try {
+      // Update product in the store optimistically
+      const productIndex = products.value.findIndex((p) => p.id === productId)
+      if (productIndex !== -1) {
+        products.value[productIndex] = { ...products.value[productIndex], is_active: status }
+      }
+
+      // Here you would typically make an API call to update the backend
+      // await api.updateProductStatus(productId, status)
+
+      console.log(`Updated product ${productId} to status: ${status}`)
+    } catch (err) {
+      error.value = err.message || 'Failed to update product status'
+      console.error('Error updating product status:', err)
+    } finally {
+      loading.value = false
+    }
   }
 
   const fetchProducts = async (params = {}) => {
@@ -62,6 +102,7 @@ export const useProductStore = defineStore('product', () => {
     error,
     toggleProductSelection,
     bulkUpdateStatus,
+    updateProductStatus,
     fetchProducts,
   }
 })

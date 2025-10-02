@@ -1,43 +1,42 @@
 <script setup>
+import { onMounted } from 'vue'
+import { NH1, NButton } from 'naive-ui'
 import { useProductStore } from '@/stores/product'
-import { NH1, NButton, NTabs, NTabPane, NInput, NSelect } from 'naive-ui'
-import ProductTable from '@/views/ProductTable.vue'
+import ProductTable from './ProductTable.vue'
 
-const store = useProductStore()
-const { selectedProducts, searchQuery, itemsPerPage, bulkUpdateStatus } = store
+const productStore = useProductStore()
+
+onMounted(async () => {
+  await productStore.fetchProducts()
+})
+
+const handleSelectionChange = (selectedIds) => {
+  console.log('Selected products:', selectedIds)
+}
+
+const handleStatusChange = (productId, status) => {
+  // Update product status via store
+  productStore.updateProductStatus(productId, status)
+}
+
+const handleBulkStatusChange = (productIds, status) => {
+  // Bulk update status via store
+  productStore.bulkUpdateStatus(productIds, status)
+}
 </script>
 
 <template>
   <div class="p-6">
     <n-h1>Daftar Produk</n-h1>
 
-    <!-- Bulk Actions -->
-    <div v-if="selectedProducts.length > 0" class="mb-4 p-4 bg-blue-50 rounded">
-      <span>{{ selectedProducts.length }} Produk dipilih</span>
-      <n-button @click="bulkUpdateStatus(true)" class="ml-4">Aktifkan</n-button>
-      <n-button @click="bulkUpdateStatus(false)">Nonaktifkan</n-button>
+    <ProductTable :products="productStore.products" @update:selected="handleSelectionChange"
+      @status-change="handleStatusChange" @bulk-status-change="handleBulkStatusChange" />
+
+    <!-- Add Product Button -->
+    <div class="mt-6">
+      <n-button type="primary" size="large" @click="$router.push('/products/add')">
+        + Tambah Barang
+      </n-button>
     </div>
-
-    <!-- Status Tabs -->
-    <n-tabs v-else type="segment">
-      <n-tab-pane name="all" tab="Semua Barang">
-        <!-- Product table -->
-      </n-tab-pane>
-      <n-tab-pane name="active" tab="Aktif">
-        <!-- Active products -->
-      </n-tab-pane>
-      <n-tab-pane name="inactive" tab="Nonaktif">
-        <!-- Inactive products -->
-      </n-tab-pane>
-    </n-tabs>
-
-    <!-- Search and Pagination -->
-    <div class="flex justify-between mb-4">
-      <n-input v-model:value="searchQuery" placeholder="Cari barang..." class="w-64" />
-      <n-select v-model:value="itemsPerPage" :options="[5, 10, 25]" class="w-32" />
-    </div>
-
-    <!-- Product Table Component -->
-    <ProductTable />
   </div>
 </template>
