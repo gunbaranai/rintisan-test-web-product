@@ -29,14 +29,14 @@ const handleBulkStatusChange = (productIds, status) => {
   <div class="p-6">
     <n-h1>Daftar Produk</n-h1>
 
-    <ProductTable :products="productStore.products" @update:selected="handleSelectionChange"
-      @status-change="handleStatusChange" @bulk-status-change="handleBulkStatusChange" />
-
     <!-- Add Product Button -->
-    <div class="mt-6">
-      <n-button type="primary" size="large" @click="$router.push('/products/add')">
+    <div class="justify-self-end mb-6">
+      <n-button type="primary" size="large" @click="$router.push('/products/add')" color="#0B557F">
         + Tambah Barang
       </n-button>
     </div>
+
+    <ProductTable :products="productStore.products" @update:selected="handleSelectionChange"
+      @status-change="handleStatusChange" @bulk-status-change="handleBulkStatusChange" />
   </div>
 </template>

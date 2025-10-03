@@ -26,15 +26,19 @@ export const useProductStore = defineStore('product', () => {
     error.value = null
 
     try {
-      // Update products in the store optimistically
-      products.value = products.value.map((product) =>
-        productIds.includes(product.id) ? { ...product, is_active: status } : product,
-      )
+      // Make API call to update the backend
+      const response = await api.bulkUpdateProductStatus(productIds, status)
 
-      // Here you would typically make an API call to update the backend
-      // await api.bulkUpdateProductStatus(productIds, status)
-
-      console.log(`Updated ${productIds.length} products to status: ${status}`)
+      // Check if API call was successful
+      if (response.success || response.status === 'success') {
+        // Update products in the store optimistically
+        products.value = products.value.map((product) =>
+          productIds.includes(product.id) ? { ...product, is_active: status } : product,
+        )
+        console.log(`Successfully updated ${productIds.length} products to status: ${status}`)
+      } else {
+        throw new Error(response.message || 'Failed to update product status')
+      }
     } catch (err) {
       error.value = err.message || 'Failed to update product status'
       console.error('Error updating product status:', err)
@@ -48,16 +52,20 @@ export const useProductStore = defineStore('product', () => {
     error.value = null
 
     try {
-      // Update product in the store optimistically
-      const productIndex = products.value.findIndex((p) => p.id === productId)
-      if (productIndex !== -1) {
-        products.value[productIndex] = { ...products.value[productIndex], is_active: status }
+      // Make API call to update the backend
+      const response = await api.updateProductStatus(productId, status)
+
+      // Check if API call was successful
+      if (response.success || response.status === 'success') {
+        // Update product in the store optimistically
+        const productIndex = products.value.findIndex((p) => p.id === productId)
+        if (productIndex !== -1) {
+          products.value[productIndex] = { ...products.value[productIndex], is_active: status }
+        }
+        console.log(`Successfully updated product ${productId} to status: ${status}`)
+      } else {
+        throw new Error(response.message || 'Failed to update product status')
       }
-
-      // Here you would typically make an API call to update the backend
-      // await api.updateProductStatus(productId, status)
-
-      console.log(`Updated product ${productId} to status: ${status}`)
     } catch (err) {
       error.value = err.message || 'Failed to update product status'
       console.error('Error updating product status:', err)

@@ -165,9 +165,14 @@ const handleBulkStatusChange = (status) => {
 const clearSelection = () => {
   selectedProductIds.value = []
 }
-
-
 </script>
+
+<style>
+.n-tabs .n-tabs-tab {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+</style>
 
 <template>
   <div>
@@ -184,45 +189,54 @@ const clearSelection = () => {
     <!-- Products data table -->
     <div v-else>
       <n-card>
-        <!-- Bulk Actions Header -->
-        <div v-if="selectedProductIds.length > 0"
-          class="bg-blue-50 p-4 rounded-lg mb-4 flex items-center justify-between">
-          <div class="flex items-center space-x-4">
-            <span class="text-blue-700 font-semibold">{{ selectedProductIds.length }} Produk dipilih</span>
-            <n-button type="error" @click="handleBulkStatusChange(false)">
-              Nonaktifkan
-            </n-button>
-            <n-button type="primary" @click="handleBulkStatusChange(true)">
-              Aktifkan
+        <div class="flex flex-row justify-between">
+          <!-- Bulk Actions Header -->
+          <div v-if="selectedProductIds.length > 0"
+            class="bg-blue-50 p-4 rounded-lg mb-4 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+              <span class="text-blue-700 font-semibold">{{ selectedProductIds.length }} Produk dipilih</span>
+              <n-button type="error" @click="handleBulkStatusChange(false)">
+                Nonaktifkan
+              </n-button>
+              <n-button type="primary" @click="handleBulkStatusChange(true)">
+                Aktifkan
+              </n-button>
+            </div>
+            <n-button quaternary @click="clearSelection">
+              Batalkan pilihan
             </n-button>
           </div>
-          <n-button quaternary @click="clearSelection">
-            Batalkan pilihan
-          </n-button>
-        </div>
 
-        <!-- Status Tabs -->
-        <n-tabs v-else v-model:value="activeTab" type="segment" class="mb-4">
-          <n-tab-pane name="all" :tab="`Semua Barang (${products.length})`">
-            <!-- Content will be handled by table -->
-          </n-tab-pane>
-          <n-tab-pane name="active" :tab="`Aktif (${activeCount})`">
-            <!-- Content will be handled by table -->
-          </n-tab-pane>
-          <n-tab-pane name="inactive" :tab="`Nonaktif (${inactiveCount})`">
-            <!-- Content will be handled by table -->
-          </n-tab-pane>
-        </n-tabs>
+          <!-- Status Tabs -->
+          <n-tabs v-else v-model:value="activeTab" type="segment" class="max-w-max mb-4">
+            <n-tab-pane name="all" :tab="`Semua Barang (${products.length})`">
+              <!-- Content will be handled by table -->
+            </n-tab-pane>
+            <n-tab-pane name="active" :tab="`Aktif (${activeCount})`">
+              <!-- Content will be handled by table -->
+            </n-tab-pane>
+            <n-tab-pane name="inactive" :tab="`Nonaktif (${inactiveCount})`">
+              <!-- Content will be handled by table -->
+            </n-tab-pane>
+          </n-tabs>
 
-        <!-- Search and Pagination Controls -->
-        <div class="flex justify-between items-center mb-4">
-          <n-input v-model:value="searchQuery" placeholder="Cari barang..." clearable class="w-64">
-            <template #prefix>
-              <n-icon><search-icon /></n-icon>
-            </template>
-          </n-input>
+          <!-- Search and Pagination Controls -->
+          <div class="flex justify-between items-center mb-4">
+            <n-input v-model:value="searchQuery" placeholder="Cari barang..." clearable class="w-64 mx-2">
+              <template #prefix>
+                <n-icon>
+                  <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                    viewBox="0 0 512 512">
+                    <path
+                      d="M456.69 421.39L362.6 327.3a173.81 173.81 0 0 0 34.84-104.58C397.44 126.38 319.06 48 222.72 48S48 126.38 48 222.72s78.38 174.72 174.72 174.72A173.81 173.81 0 0 0 327.3 362.6l94.09 94.09a25 25 0 0 0 35.3-35.3zM97.92 222.72a124.8 124.8 0 1 1 124.8 124.8a124.95 124.95 0 0 1-124.8-124.8z"
+                      fill="currentColor"></path>
+                  </svg>
+                </n-icon>
+              </template>
+            </n-input>
 
-          <n-select v-model:value="itemsPerPage" :options="pageSizeOptions" class="w-32" />
+            <n-select v-model:value="itemsPerPage" :options="pageSizeOptions" class="w-32 mx-2" />
+          </div>
         </div>
 
         <!-- Product Table -->

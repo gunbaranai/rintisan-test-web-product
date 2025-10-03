@@ -8,7 +8,6 @@ export const api = {
     active = 1, // active (1: active, 0: inactive) / nullable
     page = 1, // page
   }) {
-    console.log(search, page_count, active, page)
     const response = await fetch(`${API_BASE}/management/product/item/list`, {
       method: 'POST',
       headers: {
@@ -20,6 +19,48 @@ export const api = {
         page_count,
         active,
         page,
+      }),
+    })
+    return response.json()
+  },
+
+  async bulkUpdateProductStatus(productIds, status) {
+    // Convert productIds array to pipe-separated string
+    const idBarang = productIds.join('|')
+    // Convert boolean status to ON/OFF string
+    const statusString = status ? 'ON' : 'OFF'
+
+    console.log('Bulk updating products:', { idBarang, status: statusString })
+
+    const response = await fetch(`${API_BASE}/management/product/item/changeitemstatus`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${AUTH_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id_barang: idBarang,
+        status: statusString,
+      }),
+    })
+    return response.json()
+  },
+
+  async updateProductStatus(productId, status) {
+    // Convert boolean status to ON/OFF string
+    const statusString = status ? 'ON' : 'OFF'
+
+    console.log('Updating product:', { id_barang: productId, status: statusString })
+
+    const response = await fetch(`${API_BASE}/management/product/item/changeitemstatus`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${AUTH_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id_barang: productId.toString(),
+        status: statusString,
       }),
     })
     return response.json()
