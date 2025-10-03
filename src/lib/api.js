@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_ENDPOINT
+const API_BASE = `${import.meta.env.VITE_API_ENDPOINT}/management/product`
 const AUTH_TOKEN = import.meta.env.VITE_API_KEY
 
 export const api = {
@@ -8,7 +8,7 @@ export const api = {
     active = 1, // active (1: active, 0: inactive) / nullable
     page = 1, // page
   }) {
-    const response = await fetch(`${API_BASE}/management/product/item/list`, {
+    const response = await fetch(`${API_BASE}/item/list`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${AUTH_TOKEN}`,
@@ -32,7 +32,7 @@ export const api = {
 
     console.log('Bulk updating products:', { idBarang, status: statusString })
 
-    const response = await fetch(`${API_BASE}/management/product/item/changeitemstatus`, {
+    const response = await fetch(`${API_BASE}/item/changeitemstatus`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${AUTH_TOKEN}`,
@@ -52,7 +52,7 @@ export const api = {
 
     console.log('Updating product:', { id_barang: productId, status: statusString })
 
-    const response = await fetch(`${API_BASE}/management/product/item/changeitemstatus`, {
+    const response = await fetch(`${API_BASE}/item/changeitemstatus`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${AUTH_TOKEN}`,
@@ -66,15 +66,15 @@ export const api = {
     return response.json()
   },
 
-  // async createProduct(productData) {
-  //   const response = await fetch(`${API_BASE}/products`, {
-  //     method: 'POST',
-  //     headers: {
-  //       Authorization: `Bearer ${AUTH_TOKEN}`,
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: JSON.stringify(productData),
-  //   })
-  //   return response.json()
-  // },
+  async createProduct(productData) {
+    const response = await fetch(`${API_BASE}/item/add`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${AUTH_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(productData),
+    })
+    return response.json()
+  },
 }

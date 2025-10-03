@@ -1,8 +1,7 @@
 <script setup>
-import { onMounted, toRaw } from 'vue'
-import ProductList from '@/views/ProductList.vue'
+import { onMounted } from 'vue'
 import { useProductStore } from '@/stores/product'
-import { NSpin } from 'naive-ui'
+import { NConfigProvider, NMessageProvider, NDialogProvider, NNotificationProvider } from 'naive-ui'
 
 const store = useProductStore()
 
@@ -12,10 +11,17 @@ onMounted(() => {
 </script>
 
 <template>
-  <ProductList v-if="toRaw(store.products).length > 0" />
-  <div v-else>
-    <n-spin size="large" class="flex justify-center items-center h-screen" />
-  </div>
+  <n-config-provider>
+    <n-message-provider>
+      <n-dialog-provider>
+        <n-notification-provider>
+          <div id="app">
+            <router-view />
+          </div>
+        </n-notification-provider>
+      </n-dialog-provider>
+    </n-message-provider>
+  </n-config-provider>
 </template>
 
 <style scoped></style>

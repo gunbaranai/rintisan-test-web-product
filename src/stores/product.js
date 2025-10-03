@@ -100,6 +100,26 @@ export const useProductStore = defineStore('product', () => {
     }
   }
 
+  const createProduct = async (productData) => {
+    try {
+      // Call your API endpoint
+      const response = await api.createProduct(productData)
+
+      // Add to local state if needed
+      products.value.unshift({
+        ...productData,
+        id: response.data.id,
+        isActive: true,
+        updatedAt: new Date().toLocaleDateString('id-ID'),
+      })
+
+      return response
+    } catch (error) {
+      console.error('Failed to create product:', error)
+      throw error
+    }
+  }
+
   return {
     products,
     selectedProducts,
@@ -112,5 +132,6 @@ export const useProductStore = defineStore('product', () => {
     bulkUpdateStatus,
     updateProductStatus,
     fetchProducts,
+    createProduct,
   }
 })
