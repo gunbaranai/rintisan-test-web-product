@@ -24,7 +24,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:selected', 'status-change', 'bulk-status-change'])
+const emit = defineEmits(['update:selected', 'status-change', 'bulk-status-change', 'variant-status-change'])
 
 // Reactive state
 const selectedProductIds = ref([])
@@ -52,7 +52,15 @@ const filteredProducts = computed(() => {
     filtered = filtered.filter(product => !product.is_active)
   }
 
-  return filtered
+  // Transform data to tree structure
+  return filtered.map(product => ({
+    ...product,
+    children: product.variant_item ? product.variant_item.map(variant => ({
+      ...variant,
+      isVariant: true,
+      parentId: product.id
+    })) : []
+  }))
 })
 
 const activeCount = computed(() =>
@@ -69,25 +77,24 @@ const store = useProductStore()
 const columns = [
   {
     type: 'selection',
-    // disabled: (row) => !!row.has_variant // Disable selection for variant rows
-    // idea was right, execution could be better?
+    disabled: (row) => row.isVariant || false // Disable selection for variant rows
   },
   {
     title: 'Nama Barang',
     key: 'name',
     render: (row) => {
       // Main product row
-      if (!row.variant) {
+      if (!row.isVariant) {
         return h('div', { class: 'flex items-center space-x-2' }, [
           h('span', { class: 'font-semibold' }, row.name),
-          row.variant && h(NBadge, {
-            value: `${row.variant.length} Varian`,
+          row.variant_item && row.variant_item.length > 0 && h(NBadge, {
+            value: `${row.variant_item.length} Varian`,
             type: 'info',
             size: 'small'
           }),
-          row.add_on_link_count && h(NBadge, {
+          row.add_on_link_count > 0 && h(NBadge, {
             value: `${row.add_on_link_count} Add On`,
-            type: 'success',
+            type: 'info',
             size: 'small'
           })
         ])
@@ -105,24 +112,41 @@ const columns = [
   {
     title: 'Kategori',
     key: 'category',
-    render: (row) =>
-      h(NTag, { type: 'info' }, { default: () => row.category.name })
+    render: (row) => {
+      if (row.isVariant) {
+        // Find parent product to get its category
+        const parentProduct = props.products.find(p => p.id === row.parentId)
+        if (parentProduct && parentProduct.category) {
+          return h(NTag, { type: 'info' }, { default: () => parentProduct.category.name })
+        }
+        return h('span', { class: 'text-gray-400' }, '—')
+      }
+      return h(NTag, { type: 'info' }, { default: () => row.category.name })
+    }
   },
   {
     title: 'Tanggal Diperbaharui',
     key: 'updated_at',
-    render: (row) =>
-      h('span', { class: 'text-gray-500' }, formatDate(row.updated_at))
+    render: (row) => {
+      return h('span', { class: 'text-gray-500' }, formatDate(row.updated_at))
+    }
   },
   {
     title: 'Tindakan',
     key: 'actions',
-    render: (row) =>
-      h(NSwitch, {
+    render: (row) => {
+      return h(NSwitch, {
         value: row.is_active,
-        onUpdateValue: (value) => handleStatusChange(row.id, value),
+        onUpdateValue: (value) => {
+          if (row.isVariant) {
+            handleVariantStatusChange(row.parentId, row.id, value)
+          } else {
+            handleStatusChange(row.id, value)
+          }
+        },
         round: false
       })
+    }
   }
 ]
 
@@ -165,12 +189,28 @@ const handleBulkStatusChange = (status) => {
 const clearSelection = () => {
   selectedProductIds.value = []
 }
+
+// Default expanded rows (you can customize this)
+const defaultExpandedRowKeys = ref([])
+
+// Tree data structure is now handled automatically by Naive UI
+
+// Handle variant status change
+const handleVariantStatusChange = (parentId, variantId, status) => {
+  console.log(`Updating variant ${variantId} of product ${parentId} to status: ${status}`)
+  // You can emit this event to parent component or handle it directly
+  emit('variant-status-change', parentId, variantId, status)
+}
 </script>
 
 <style>
 .n-tabs .n-tabs-tab {
   padding-left: 1rem;
   padding-right: 1rem;
+}
+
+.n-data-table .n-data-table-expand-trigger {
+  float: left;
 }
 </style>
 
@@ -241,6 +281,7 @@ const clearSelection = () => {
 
         <!-- Product Table -->
         <n-data-table :columns="columns" :data="filteredProducts" :pagination="pagination" :row-key="row => row.id"
+          :default-expanded-row-keys="defaultExpandedRowKeys" :indent="20"
           @update:checked-row-keys="handleSelectionChange" />
       </n-card>
     </div>

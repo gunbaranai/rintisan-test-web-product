@@ -23,6 +23,14 @@ const handleBulkStatusChange = (productIds, status) => {
   // Bulk update status via store
   productStore.bulkUpdateStatus(productIds, status)
 }
+
+const handleVariantStatusChange = (parentId, variantId, status) => {
+  // Handle variant status change
+  console.log(`Variant ${variantId} of product ${parentId} status changed to: ${status}`)
+  // You can add specific logic here for variant status updates
+  // For now, we'll use the same updateProductStatus method
+  productStore.updateProductStatus(variantId, status)
+}
 </script>
 
 <template>
@@ -37,6 +45,7 @@ const handleBulkStatusChange = (productIds, status) => {
     </div>
 
     <ProductTable :products="productStore.products" @update:selected="handleSelectionChange"
-      @status-change="handleStatusChange" @bulk-status-change="handleBulkStatusChange" />
+      @status-change="handleStatusChange" @bulk-status-change="handleBulkStatusChange"
+      @variant-status-change="handleVariantStatusChange" />
   </div>
 </template>
